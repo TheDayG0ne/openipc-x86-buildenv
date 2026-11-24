@@ -1,17 +1,12 @@
 services:
-  divinus-build:
+  buildroot:
     build: .
-    image: openipc-x86-divinus:local
-    working_dir: /src
+    environment:
+      JOBS: ${JOBS:-2}
     volumes:
-      - ../sources/divinus:/src:ro
-      - ../tmp/artifacts:/artifacts
-    entrypoint: ["/bin/sh", "-ec"]
-    command:
-      - |
-        work=$$(mktemp -d)
-        trap 'rm -rf "$$work"' EXIT
-        cp -a /src/. "$$work/"
-        make -C "$$work/src" clean
-        make -C "$$work/src" -j2 UVC_FFMPEG=1 OPT=-lm
-        cp "$$work/divinus" /artifacts/divinus
+      - buildroot-work:/work
+      - ../buildroot-x86:/external:ro
+      - ../sources:/sources:ro
+
+volumes:
+  buildroot-work:
